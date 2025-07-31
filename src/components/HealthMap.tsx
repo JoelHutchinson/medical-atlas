@@ -1,10 +1,14 @@
 import { useMemo } from "react";
 import { Map, NavigationControl, useControl } from "react-map-gl/maplibre";
 import { GeoJsonLayer } from "deck.gl";
-import { MapboxOverlay as DeckOverlay } from "@deck.gl/mapbox";
+import {
+  MapboxOverlay as DeckOverlay,
+  type MapboxOverlayProps,
+} from "@deck.gl/mapbox";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import { useQueryWhoIndicator } from "@/hooks/useWhoQueryIndicator";
+import { MapFilterPanel } from "./MapFilterPanel";
 
 // GeoJSON with country borders
 const COUNTRY_BORDERS =
@@ -21,7 +25,7 @@ const INITIAL_VIEW_STATE = {
 const MAP_STYLE =
   "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json";
 
-function DeckGLOverlay(props) {
+function DeckGLOverlay(props: MapboxOverlayProps) {
   const overlay = useControl(() => new DeckOverlay(props));
   overlay.setProps(props);
   return null;
@@ -57,9 +61,15 @@ export function HealthMap() {
   );
 
   return (
-    <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={MAP_STYLE}>
-      <DeckGLOverlay layers={layers} />
-      <NavigationControl position="top-left" />
-    </Map>
+    <div className="relative w-full h-full">
+      <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={MAP_STYLE}>
+        <DeckGLOverlay layers={layers} />
+        <NavigationControl position="top-left" />
+      </Map>
+
+      <div className="absolute top-2 right-2 z-10">
+        <MapFilterPanel />
+      </div>
+    </div>
   );
 }
