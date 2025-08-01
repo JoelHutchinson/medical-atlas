@@ -1,5 +1,3 @@
-import * as React from "react";
-
 import {
   Select,
   SelectContent,
@@ -10,64 +8,59 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function SelectScrollable() {
+export function SelectScrollable({
+  value,
+  onValueChange,
+}: {
+  value?: string;
+  onValueChange?: (val: string) => void;
+}) {
   return (
-    <Select>
+    <Select value={value} onValueChange={onValueChange}>
       <SelectTrigger className="w-[280px]">
         <SelectValue placeholder="Select an indicator" />
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectLabel>North America</SelectLabel>
-          <SelectItem value="est">Eastern Standard Time (EST)</SelectItem>
-          <SelectItem value="cst">Central Standard Time (CST)</SelectItem>
-          <SelectItem value="mst">Mountain Standard Time (MST)</SelectItem>
-          <SelectItem value="pst">Pacific Standard Time (PST)</SelectItem>
-          <SelectItem value="akst">Alaska Standard Time (AKST)</SelectItem>
-          <SelectItem value="hst">Hawaii Standard Time (HST)</SelectItem>
+          <SelectLabel>HIV/AIDS</SelectLabel>
+          <SelectItem value="HIV_ARTCOVERAGE">ART Coverage</SelectItem>
+          <SelectItem value="HIV_0000000026">HIV Prevalence</SelectItem>
+          <SelectItem value="HIV_MORTALITY">HIV Mortality</SelectItem>
+          <SelectItem value="HIV_NEWINFECTIONS">New HIV Infections</SelectItem>
         </SelectGroup>
         <SelectGroup>
-          <SelectLabel>Europe & Africa</SelectLabel>
-          <SelectItem value="gmt">Greenwich Mean Time (GMT)</SelectItem>
-          <SelectItem value="cet">Central European Time (CET)</SelectItem>
-          <SelectItem value="eet">Eastern European Time (EET)</SelectItem>
-          <SelectItem value="west">
-            Western European Summer Time (WEST)
-          </SelectItem>
-          <SelectItem value="cat">Central Africa Time (CAT)</SelectItem>
-          <SelectItem value="eat">East Africa Time (EAT)</SelectItem>
-        </SelectGroup>
-        <SelectGroup>
-          <SelectLabel>Asia</SelectLabel>
-          <SelectItem value="msk">Moscow Time (MSK)</SelectItem>
-          <SelectItem value="ist">India Standard Time (IST)</SelectItem>
-          <SelectItem value="cst_china">China Standard Time (CST)</SelectItem>
-          <SelectItem value="jst">Japan Standard Time (JST)</SelectItem>
-          <SelectItem value="kst">Korea Standard Time (KST)</SelectItem>
-          <SelectItem value="ist_indonesia">
-            Indonesia Central Standard Time (WITA)
+          <SelectLabel>Tuberculosis</SelectLabel>
+          <SelectItem value="UHC_TB_DT">TB Incidence</SelectItem>
+          <SelectItem value="TB_MORTALITY">TB Mortality</SelectItem>
+          <SelectItem value="TB_TREATMENTCOVERAGE">
+            TB Treatment Coverage
           </SelectItem>
         </SelectGroup>
         <SelectGroup>
-          <SelectLabel>Australia & Pacific</SelectLabel>
-          <SelectItem value="awst">
-            Australian Western Standard Time (AWST)
-          </SelectItem>
-          <SelectItem value="acst">
-            Australian Central Standard Time (ACST)
-          </SelectItem>
-          <SelectItem value="aest">
-            Australian Eastern Standard Time (AEST)
-          </SelectItem>
-          <SelectItem value="nzst">New Zealand Standard Time (NZST)</SelectItem>
-          <SelectItem value="fjt">Fiji Time (FJT)</SelectItem>
+          <SelectLabel>Malaria</SelectLabel>
+          <SelectItem value="MALARIA_CASES">Malaria Cases</SelectItem>
+          <SelectItem value="MALARIA_MORTALITY">Malaria Mortality</SelectItem>
+          <SelectItem value="MALARIA_ITN_COVERAGE">ITN Coverage</SelectItem>
         </SelectGroup>
         <SelectGroup>
-          <SelectLabel>South America</SelectLabel>
-          <SelectItem value="art">Argentina Time (ART)</SelectItem>
-          <SelectItem value="bot">Bolivia Time (BOT)</SelectItem>
-          <SelectItem value="brt">Brasilia Time (BRT)</SelectItem>
-          <SelectItem value="clt">Chile Standard Time (CLT)</SelectItem>
+          <SelectLabel>Hepatitis</SelectLabel>
+          <SelectItem value="HEPB_PREVALENCE">
+            Hepatitis B Prevalence
+          </SelectItem>
+          <SelectItem value="HEPC_PREVALENCE">
+            Hepatitis C Prevalence
+          </SelectItem>
+          <SelectItem value="HEPB_VACC_COVERAGE">
+            Hepatitis B Vaccine Coverage
+          </SelectItem>
+        </SelectGroup>
+        <SelectGroup>
+          <SelectLabel>Other Infectious Diseases</SelectLabel>
+          <SelectItem value="MEASLES_INCIDENTS">Measles Incidence</SelectItem>
+          <SelectItem value="DENGUE_CASES">Dengue Cases</SelectItem>
+          <SelectItem value="INFLUENZA_CASES">Influenza Cases</SelectItem>
+          <SelectItem value="COVID19_CASES">COVID-19 Cases</SelectItem>
+          <SelectItem value="COVID19_MORTALITY">COVID-19 Mortality</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

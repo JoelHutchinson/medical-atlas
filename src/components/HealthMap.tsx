@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Map, NavigationControl, useControl } from "react-map-gl/maplibre";
 import { GeoJsonLayer } from "deck.gl";
 import {
@@ -32,15 +32,15 @@ function DeckGLOverlay(props: MapboxOverlayProps) {
 }
 
 export function HealthMap() {
-  const query = useQueryWhoIndicator("HIV_ARTCOVERAGE");
-
+  const [indicator, setIndicator] = useState("HIV_ARTCOVERAGE");
+  const query = useQueryWhoIndicator(indicator);
   const countryData = query.data || {};
 
   const layers = useMemo(
     () => [
       new GeoJsonLayer({
         id: "countries",
-        data: COUNTRY_BORDERS,
+        data: `${COUNTRY_BORDERS}?_ts=${indicator}&_=${query.status}`,
         pickable: true,
         autoHighlight: true,
         highlightColor: [255, 0, 0, 40], // semi-transparent red
@@ -48,6 +48,8 @@ export function HealthMap() {
         filled: true,
         getLineColor: [80, 80, 80],
         getFillColor: (f) => {
+          if (query.status === "pending") return [200, 200, 200, 100]; // light gray while loading
+
           const value = countryData[f.properties.adm0_a3];
           if (value === undefined) return [0, 0, 0, 0]; // no fill
 
@@ -57,18 +59,27 @@ export function HealthMap() {
         lineWidthMinPixels: 1,
       }),
     ],
-    [countryData]
+    [countryData, query.status, indicator]
   );
 
   return (
     <div className="relative w-full h-full">
+      <pre>
+        {`Selected Indicator: ${indicator}\n`}
+        {`Data Status: ${query.status}\n`}
+        {`Countries Loaded: ${Object.keys(countryData).length}\n`}
+      </pre>
+
       <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={MAP_STYLE}>
         <DeckGLOverlay layers={layers} />
         <NavigationControl position="top-left" />
       </Map>
 
       <div className="absolute top-2 right-2 z-10">
-        <MapFilterPanel />
+        <MapFilterPanel
+          indicator={indicator}
+          onIndicatorChange={setIndicator}
+        />
       </div>
     </div>
   );
