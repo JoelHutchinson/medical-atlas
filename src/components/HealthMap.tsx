@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Map, NavigationControl, useControl } from "react-map-gl/maplibre";
 import { GeoJsonLayer } from "deck.gl";
 import {
@@ -7,17 +7,14 @@ import {
 } from "@deck.gl/mapbox";
 import "maplibre-gl/dist/maplibre-gl.css";
 
-import { useQueryWhoIndicator } from "@/hooks/useWhoQueryIndicator";
-import { MapFilterPanel } from "./MapFilterPanel";
-
-// GeoJSON with country borders
-const COUNTRY_BORDERS =
-  "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_admin_0_countries.geojson";
+const NYC_BORDERS_URL =
+  "https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson";
+//"https://data.cityofnewyork.us/resource/pri4-ifjk.json";
 
 const INITIAL_VIEW_STATE = {
-  latitude: 20,
-  longitude: 0,
-  zoom: 1.5,
+  latitude: 40.7128,
+  longitude: -74.006,
+  zoom: 9,
   bearing: 0,
   pitch: 0,
 };
@@ -32,55 +29,76 @@ function DeckGLOverlay(props: MapboxOverlayProps) {
 }
 
 export function HealthMap() {
-  const [indicator, setIndicator] = useState("HIV_ARTCOVERAGE");
-  const query = useQueryWhoIndicator(indicator);
-  const countryData = query.data || {};
+  const [geojson, setGeojson] = useState(null);
 
-  const layers = useMemo(
-    () => [
+  useEffect(() => {
+    fetch(NYC_BORDERS_URL)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("GeoJSON loaded:", data.features.length, "features");
+        setGeojson(data);
+      });
+  }, []);
+
+  const layers = useMemo(() => {
+    if (!geojson) return [];
+
+    return [
       new GeoJsonLayer({
-        id: "countries",
-        data: `${COUNTRY_BORDERS}?_ts=${indicator}&_=${query.status}`,
+        id: "nyc-boroughs",
+        data: geojson,
         pickable: true,
         autoHighlight: true,
-        highlightColor: [255, 0, 0, 40], // semi-transparent red
+        highlightColor: [255, 255, 0, 160],
         stroked: false,
         filled: true,
         getLineColor: [80, 80, 80],
         getFillColor: (f) => {
-          if (query.status === "pending") return [200, 200, 200, 100]; // light gray while loading
+          const boro = f.properties.BoroName;
+          console.log(f.properties.BoroName);
 
-          const value = countryData[f.properties.adm0_a3];
-          if (value === undefined) return [0, 0, 0, 0]; // no fill
+          const valueMap = {
+            "Staten Island": 100,
+            Brooklyn: 180,
+            Manhattan: 160,
+            Queens: 140,
+            Bronx: 120,
+          };
 
-          // Example: Red intensity based on value (0–100)
+          const value = valueMap[boro];
+
+          if (value === undefined) {
+            return [200, 200, 200, 80]; // fallback gray
+          }
+
           return [255, 0, 0, Math.min(255, value)];
         },
         lineWidthMinPixels: 1,
+        onHover: ({ object, x, y }) => {
+          const boro = object?.properties?.BoroName;
+          if (boro) {
+            console.log(`Hovered: ${boro}`);
+          }
+        },
       }),
-    ],
-    [countryData, query.status, indicator]
-  );
+    ];
+  }, [geojson]);
 
   return (
     <div className="relative w-full h-full">
-      <pre>
-        {`Selected Indicator: ${indicator}\n`}
-        {`Data Status: ${query.status}\n`}
-        {`Countries Loaded: ${Object.keys(countryData).length}\n`}
-      </pre>
-
-      <Map initialViewState={INITIAL_VIEW_STATE} mapStyle={MAP_STYLE}>
+      <Map
+        initialViewState={INITIAL_VIEW_STATE}
+        mapStyle={MAP_STYLE}
+        maxBounds={[
+          [-74.269855, 40.493325],
+          [-73.687826, 40.91604],
+        ]}
+        minZoom={9}
+        maxZoom={16}
+      >
         <DeckGLOverlay layers={layers} />
         <NavigationControl position="top-left" />
       </Map>
-
-      <div className="absolute top-2 right-2 z-10">
-        <MapFilterPanel
-          indicator={indicator}
-          onIndicatorChange={setIndicator}
-        />
-      </div>
     </div>
   );
 }
