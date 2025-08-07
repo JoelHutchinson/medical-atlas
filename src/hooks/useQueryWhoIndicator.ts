@@ -24,8 +24,6 @@ const fetchWhoIndicator = async ({
 
   const data = await response.json();
 
-  console.log(data);
-
   return data.value.reduce(
     (
       acc: Record<string, number>,
