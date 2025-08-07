@@ -8,8 +8,7 @@ import {
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const NYC_BORDERS_URL =
-  "https://services5.arcgis.com/GfwWNkhOj9bNBqoJ/arcgis/rest/services/NYC_Borough_Boundary/FeatureServer/0/query?where=1=1&outFields=*&outSR=4326&f=pgeojson";
-//"https://data.cityofnewyork.us/resource/pri4-ifjk.json";
+  "https://data.cityofnewyork.us/resource/pri4-ifjk.geojson";
 
 const INITIAL_VIEW_STATE = {
   latitude: 40.7128,
@@ -50,35 +49,16 @@ export function HealthMap() {
         pickable: true,
         autoHighlight: true,
         highlightColor: [255, 255, 0, 160],
-        stroked: false,
+        stroked: true,
         filled: true,
-        getLineColor: [80, 80, 80],
+        getLineColor: [200, 200, 200],
         getFillColor: (f) => {
-          const boro = f.properties.BoroName;
-          console.log(f.properties.BoroName);
-
-          const valueMap = {
-            "Staten Island": 100,
-            Brooklyn: 180,
-            Manhattan: 160,
-            Queens: 140,
-            Bronx: 120,
-          };
-
-          const value = valueMap[boro];
-
-          if (value === undefined) {
-            return [200, 200, 200, 80]; // fallback gray
-          }
-
-          return [255, 0, 0, Math.min(255, value)];
+          const zip = f.properties.modzcta;
+          // Example: make zip 10001 red, others gray
+          return zip === "10001" ? [255, 0, 0, 180] : [200, 200, 200, 100];
         },
-        lineWidthMinPixels: 1,
-        onHover: ({ object, x, y }) => {
-          const boro = object?.properties?.BoroName;
-          if (boro) {
-            console.log(`Hovered: ${boro}`);
-          }
+        onHover: ({ object }) => {
+          console.log(`Hovered MODZCTA: ${object?.properties?.modzcta}`);
         },
       }),
     ];
